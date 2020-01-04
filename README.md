@@ -5,7 +5,7 @@ methods in object-oriented Perl.  The base class provided by
 Fieldhouse allows its subclasses to declare instance-based storage of
 various shapes (scalars, lists, hashtables, hashtables mapping to
 lists, and so on), with a variety accessor and mutator methods
-automatically defined through Perl's `AUTOLOAD` method.
+automatically defined through Perl's `<AUTOLOAD`> method.
 
 There are probably better and more sensible approaches to this
 problem, but I did not know about them when I started cobbling this
@@ -13,6 +13,9 @@ project together.  Now it has grown a bit, I use it in most of the
 Perl utilities I write for myself, and converting to one of these
 better and more sensible approaches just does seem worth the effort:
 so here we are.
+
+Unless you want to extend the beast, the only class you'll need is
+`<Fieldhouse::Base`> --- its POD follows.
 
 # NAME
 
