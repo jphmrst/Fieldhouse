@@ -294,6 +294,8 @@ sub dbgStr {
 
 __END__
 
+=head1 Introduction
+
 The Fieldhouse is a small framework for managing accessor/mutator
 methods in object-oriented Perl.  The base class provided by
 Fieldhouse allows its subclasses to declare instance-based storage of
