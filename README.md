@@ -53,7 +53,7 @@ sub method {
   ## Using the list-based variable.
   $self->push_listval(5);
   $self->push_listval(6, 7);
-  foreach my $val (@{$self->listvals}) {
+  foreach my $val ($self->listvals) {
     print $val, " ";
   }
   print "\n\n";
