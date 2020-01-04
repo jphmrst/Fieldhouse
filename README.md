@@ -10,12 +10,12 @@ automatically defined through Perl's `AUTOLOAD` method.
 There are probably better and more sensible approaches to this
 problem, but I did not know about them when I started cobbling this
 project together.  Now it has grown a bit, I use it in most of the
-Perl utilities I write for myself, and converting to one of these
-better and more sensible approaches just does seem worth the effort:
-so here we are.
+Perl utilities I write for myself, and converting to some allegedly
+better and more sensible approach just does seem worth the effort: so
+here we are.
 
 Unless you want to extend the beast, the only class you'll need is
-`Fieldhouse::Base` --- its POD follows.
+`Fieldhouse::Base`.  Its POD follows.
 
 # NAME
 
