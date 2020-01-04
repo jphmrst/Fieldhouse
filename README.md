@@ -5,7 +5,7 @@ methods in object-oriented Perl.  The base class provided by
 Fieldhouse allows its subclasses to declare instance-based storage of
 various shapes (scalars, lists, hashtables, hashtables mapping to
 lists, and so on), with a variety accessor and mutator methods
-automatically defined through Perl's `<AUTOLOAD`> method.
+automatically defined through Perl's `AUTOLOAD` method.
 
 There are probably better and more sensible approaches to this
 problem, but I did not know about them when I started cobbling this
@@ -15,7 +15,7 @@ better and more sensible approaches just does seem worth the effort:
 so here we are.
 
 Unless you want to extend the beast, the only class you'll need is
-`<Fieldhouse::Base`> --- its POD follows.
+`Fieldhouse::Base` --- its POD follows.
 
 # NAME
 
@@ -83,8 +83,8 @@ sub method {
 
 ## Initializing instances
 
-The `<Fieldhouse::Base`> class defines a `<new`> method which should
-not be overridden.  Instead, use the `<initialize`> method (see
+The `Fieldhouse::Base` class defines a `new` method which should
+not be overridden.  Instead, use the `initialize` method (see
 example above).  Always include the superclass method call, usually
 first.
 
@@ -95,7 +95,7 @@ first.
     These have no particular structure, just storing some value under a
     method name.  Declare via:
 
-    - `$self->declare_scalar_variable(NAME, INITIAL_VALUE)`
+    - `$self-`declare\_scalar\_variable(NAME, INITIAL\_VALUE)>
 
     The second argument is optional. This declaration provides the
     following methods:
@@ -112,7 +112,7 @@ first.
 
     These have multiple values associated with them.  Declare via:
 
-    - `$self->declare_list_accumulator(NAME, INITIAL_VALUE, PLURALNAME)`
+    - `$self-`declare\_list\_accumulator(NAME, INITIAL\_VALUE, PLURALNAME)>
 
     Only the first argument is required. The second argument should be a
     list. The third argument should be a string reflecting the plural of
@@ -132,7 +132,7 @@ first.
     A variation of lists which can also be accessed by a key extracted
     from the list elements.
 
-    - `$self->declare_indexed_list_accumulator(NAME, indexer => INDEXER, init => INITIAL_VALUES, plural => PLURALNAME)`
+    - `$self-`declare\_indexed\_list\_accumulator(NAME, indexer => INDEXER, init => INITIAL\_VALUES, plural => PLURALNAME)>
 
         The `INDEXER` is a function which takes a list element and returns
         the key by which it should be accessed.  This function is optional,
@@ -154,7 +154,7 @@ first.
 
     These provide a simple association with scalars.  Declare via:
 
-    - `$self->declare_hash_accumulator(NAME, INITAL_HASH)`
+    - `$self-`declare\_hash\_accumulator(NAME, INITAL\_HASH)>
 
     Only the first argument is required. This declaration provides the
     following methods:
@@ -180,7 +180,7 @@ first.
     These provide a simple association with pairs of scalars.  Declare
     via:
 
-    - `$self->declare_dblhash_accumulator(NAME, INITAL_DBL_HASH)`
+    - `$self-`declare\_dblhash\_accumulator(NAME, INITAL\_DBL\_HASH)>
 
     Only the first argument is required. This declaration provides the
     following methods:
@@ -214,7 +214,7 @@ first.
 
     These associate each key with multiple values.  Declare via:
 
-    - `$self->declare_hash_of_lists_accumulator(NAME, INITIAL_VALUE, PLURALNAME)`
+    - `$self-`declare\_hash\_of\_lists\_accumulator(NAME, INITIAL\_VALUE, PLURALNAME)>
 
     Only the first argument is required. The second argument should be a
     hashtable. The third argument should be a string reflecting the plural

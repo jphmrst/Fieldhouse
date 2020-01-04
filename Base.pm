@@ -301,7 +301,7 @@ methods in object-oriented Perl.  The base class provided by
 Fieldhouse allows its subclasses to declare instance-based storage of
 various shapes (scalars, lists, hashtables, hashtables mapping to
 lists, and so on), with a variety accessor and mutator methods
-automatically defined through Perl's C<<AUTOLOAD>> method.
+automatically defined through Perl's C<AUTOLOAD> method.
 
 There are probably better and more sensible approaches to this
 problem, but I did not know about them when I started cobbling this
@@ -311,7 +311,7 @@ better and more sensible approaches just does seem worth the effort:
 so here we are.
 
 Unless you want to extend the beast, the only class you'll need is
-C<<Fieldhouse::Base>> --- its POD follows.
+C<Fieldhouse::Base> --- its POD follows.
 
 =head1 NAME
 
@@ -377,8 +377,8 @@ of accessor and mutator methods for internal fields.
 
 =head2 Initializing instances
 
-The C<<Fieldhouse::Base>> class defines a C<<new>> method which should
-not be overridden.  Instead, use the C<<initialize>> method (see
+The C<Fieldhouse::Base> class defines a C<new> method which should
+not be overridden.  Instead, use the C<initialize> method (see
 example above).  Always include the superclass method call, usually
 first.
 
@@ -393,7 +393,7 @@ method name.  Declare via:
 
 =over 2
 
-=item C<< $self->declare_scalar_variable(NAME, INITIAL_VALUE) >>
+=item C<$self->declare_scalar_variable(NAME, INITIAL_VALUE)>
 
 =back
 
@@ -418,7 +418,7 @@ These have multiple values associated with them.  Declare via:
 
 =over 2
 
-=item C<< $self->declare_list_accumulator(NAME, INITIAL_VALUE, PLURALNAME) >>
+=item C<$self->declare_list_accumulator(NAME, INITIAL_VALUE, PLURALNAME)>
 
 =back
 
@@ -446,7 +446,7 @@ from the list elements.
 
 =over 2
 
-=item C<< $self->declare_indexed_list_accumulator(NAME, indexer => INDEXER, init => INITIAL_VALUES, plural => PLURALNAME) >>
+=item C<$self->declare_indexed_list_accumulator(NAME, indexer => INDEXER, init => INITIAL_VALUES, plural => PLURALNAME)>
 
 The C<INDEXER> is a function which takes a list element and returns
 the key by which it should be accessed.  This function is optional,
@@ -476,7 +476,7 @@ These provide a simple association with scalars.  Declare via:
 
 =over 2
 
-=item C<< $self->declare_hash_accumulator(NAME, INITAL_HASH) >>
+=item C<$self->declare_hash_accumulator(NAME, INITAL_HASH)>
 
 =back
 
@@ -510,7 +510,7 @@ via:
 
 =over 2
 
-=item C<< $self->declare_dblhash_accumulator(NAME, INITAL_DBL_HASH) >>
+=item C<$self->declare_dblhash_accumulator(NAME, INITAL_DBL_HASH)>
 
 =back
 
@@ -552,7 +552,7 @@ These associate each key with multiple values.  Declare via:
 
 =over 2
 
-=item C<< $self->declare_hash_of_lists_accumulator(NAME, INITIAL_VALUE, PLURALNAME) >>
+=item C<$self->declare_hash_of_lists_accumulator(NAME, INITIAL_VALUE, PLURALNAME)>
 
 =back
 
