@@ -291,9 +291,7 @@ is($tester->listDblHash('aa', 'mm', 2), 21,
 # TODO Implement this
 # $tester->maxIndex_listDblHash
 
-## TODO Tests on a single hash of lists
-
-## TODO Tests on a double hash of lists
+## TODO Tests on a triple hash of lists
 
 exit 0;
 

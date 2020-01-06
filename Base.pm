@@ -20,6 +20,8 @@ use Fieldhouse::Dispatchers::SingleHashOfListsSingular;
 use Fieldhouse::Dispatchers::SingleHashOfListsPlural;
 use Fieldhouse::Dispatchers::DoubleHashOfListsSingular;
 use Fieldhouse::Dispatchers::DoubleHashOfListsPlural;
+use Fieldhouse::Dispatchers::TripleHashOfListsSingular;
+use Fieldhouse::Dispatchers::TripleHashOfListsPlural;
 
 # Generic constructor
 sub new {
@@ -185,6 +187,26 @@ sub declare_dblhash_of_lists_accumulator {
 
   $self->{__dblhashoflists}{$field} = {};
   $self->{__dblhashoflistsslot}{$plural} = $field;
+}
+
+sub declare_triplehash_of_lists_accumulator {
+  my $self = shift;
+  my $field = shift;
+  my $plural = shift;
+  $plural = $field . "s" unless defined $plural;
+
+  die "Field name $field already in use"
+      if defined $self->{__dispatcher}{$field};
+  $self->{__dispatcher}{$field} =
+      $Fieldhouse::Dispatchers::TripleHashOfListsSingular::INSTANCE;
+
+  die "Field name $plural already in use"
+      if defined $self->{__dispatcher}{$plural};
+  $self->{__dispatcher}{$plural} =
+      $Fieldhouse::Dispatchers::TripleHashOfListsPlural::INSTANCE;
+
+  $self->{__triplehashoflists}{$field} = {};
+  $self->{__triplehashoflistsslot}{$plural} = $field;
 }
 
 #################################################################
