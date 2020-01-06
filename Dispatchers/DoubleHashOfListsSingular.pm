@@ -10,7 +10,8 @@ use Carp;
 
 our $AUTOLOAD;  # it's a package global
 our $CLASS = "Fieldhouse::Dispatchers::DoubleHashOfListsSingular";
-our @ISA = ("Fieldhouse::Dispatchers::DoubleHash");
+our @ISA = ("Fieldhouse::Dispatchers::DoubleHash",
+            "Fieldhouse::Dispatchers::XHashOfLists");
 our $INSTANCE = new Fieldhouse::Dispatchers::DoubleHashOfListsSingular;
 
 #################################################################
@@ -35,9 +36,9 @@ sub bare {
   my $idx = shift;
   my $val = shift;
 
-  ## print "** dblhash lookup hash $name keys $key1,$key2 val $val\n";
+  ## print "** dblhash lookup hash $name keys $key1,$key2 idx $idx val $val\n";
   if (defined $val) {
-    $obj->{__dblhash}{$name}{$key1}{$key2} = $val;
+    $obj->{__dblhash}{$name}{$key1}{$key2}[$idx] = $val;
     return $val;
   } else {
     return undef
@@ -49,40 +50,26 @@ sub bare {
 }
 
 sub empty {
-  shift;
+  my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
 
-  ## If there are no keys in the top-level hashtable, then the answer
-  ## is that it's empty no matter what the question was.
-  ##
+  ## First check the odd case that the top-level hash is empty.
+  ## Weird, but not a problem we solve here.
   my $theHash = $obj->{__dblhashoflists}{$name};
-  my @ks = keys %$theHash;
-  return 1  if $#ks < 0;
+  return 1  unless defined $theHash;
 
-  ## OK, we need to know the question.  If there is no key given, then
-  ## we want to know if it's absolutely empty.
-  ##
-  if ($#_ < 0) {
-    my $total=0;
-    foreach my $k (@ks) {
-      my $subhash = $theHash->{$k};
-      foreach my $subkey (keys %$subhash) {
-        my $arr = $subhash->{$subkey};
-        return 0  if defined $arr && $#{$arr} > -1;
-      }
-    }
-
-    return 1;
-  }
-
-  ## Else if we have a key, then we check just whether that key has
-  ## any subkeys.
-  ##
-  else {
-    my $key = shift;
-    my @subks = keys %{$theHash->{$key}};
-    return $#subks < 0;
+  ## Otherwise see how many keys are defined, and check that level of
+  ## hashtable tree.
+  my $key1 = shift;
+  my $key2 = shift;
+  if (!defined $key1) {
+    return $dispatcher->isHash2EmptyLists($theHash);
+  } elsif (!defined $key2) {
+    return $dispatcher->isHash1EmptyLists($theHash->{$key1});
+  } else {
+    my $arr = $theHash->{$key1}{$key2};
+    return !(defined $arr) || ($#{$arr} < 0);
   }
 }
 
@@ -128,35 +115,13 @@ sub sizeOf {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  my $theHash = $obj->{__dblhashoflists}{$name};
-  my @ks = keys %$theHash;
-
   my $key1 = shift;
   my $key2 = shift;
 
-  if (defined $key2) {
-    return 1+$#{$theHash->{$key1}{$key2}};
-  }
-
-  elsif (defined $key1) {
-    my $total=0;
-    my $subhash = $theHash->{$key1};
-    foreach my $subkey (keys %$subhash) {
-      $total += ($#{$subhash->{$subkey}} + 1);
-    }
-    return $total;
-  }
-
-  else {
-    my $total=0;
-    foreach my $k (@ks) {
-      my $subhash = $theHash->{$k};
-      foreach my $subkey (keys %$subhash) {
-        $total += ($#{$subhash->{$subkey}} + 1);
-      }
-    }
-    return $total;
-  }
+  my $theHash = $obj->{__dblhashoflists}{$name};
+  return $dispatcher->listSizeSafe($theHash->{$key1}{$key2}) if defined $key2;
+  return $dispatcher->hash1ListsSize($theHash->{$key1})  if defined $key1;
+  return $dispatcher->hash2ListsSize($theHash);
 }
 
 1;

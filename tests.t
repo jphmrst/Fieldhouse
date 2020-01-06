@@ -223,7 +223,7 @@ is($tester->listHash_size('aa'), 1,
    'Size of entry in initialized-empty hash-of-lists plus one pushed on');
 
 $tester->push_listHash('aa', 20);
-is($tester->listHash_size, 1,
+is($tester->listHash_size, 2,
    'Size of hash-of-lists with two pushed under same key');
 is($tester->listHash_size('aa'), 2,
    'Size of hash-of-lists key with two pushed under same that key');

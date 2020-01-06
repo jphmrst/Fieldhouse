@@ -10,7 +10,8 @@ use Carp;
 
 our $AUTOLOAD;  # it's a package global
 our $CLASS = "Fieldhouse::Dispatchers::SingleHashOfListsSingular";
-our @ISA = ("Fieldhouse::Dispatchers::Dispatcher");
+our @ISA = ("Fieldhouse::Dispatchers::Dispatcher",
+            "Fieldhouse::Dispatchers::XHashOfLists");
 our $INSTANCE = new Fieldhouse::Dispatchers::SingleHashOfListsSingular;
 
 #################################################################
@@ -64,8 +65,7 @@ sub empty {
 
   ## Otherwise check if there are any defined keys
   else {
-    my @ks = keys %{$obj->{__hashoflists}{$name}};
-    return $#ks < 0;
+    return $dispatcher->isHash1EmptyLists($obj->{__hashoflists}{$name});
   }
 }
 
@@ -88,17 +88,14 @@ sub deleteKey {
 }
 
 sub sizeOf {
-  shift;
+  my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
   my $key = shift;
 
-  if (defined $key) {
-    return 1+$#{$obj->{__hashoflists}{$name}{$key}};
-  } else {
-    my @ks = keys %{$obj->{__hashoflists}{$name}};
-    return 1+$#ks;
-  }
+  my $theHash = $obj->{__hashoflists}{$name};
+  return $dispatcher->listSizeSafe($theHash->{$key})  if defined $key;
+  return $dispatcher->hash1ListsSize($theHash)
 }
 
 sub push {
