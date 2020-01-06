@@ -1,6 +1,6 @@
-package JM_Utils::TestClass;
+package Fieldhouse::TestClass;
 use Fieldhouse::Base;
-our $CLASS = "JM_Utils::TestClass";
+our $CLASS = "Fieldhouse::TestClass";
 our @ISA = ("Fieldhouse::Base");
 
 sub initialize {

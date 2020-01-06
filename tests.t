@@ -7,12 +7,12 @@ use Carp;
 use FindBin;
 use Test::More qw( no_plan ); # for the is() and isnt() functions
 use lib ("$FindBin::Bin/..");
-use JM_Utils::TestClass;
+use Fieldhouse::TestClass;
 
 #########################
 ## Scalars
 ##
-my $tester = new JM_Utils::TestClass;
+my $tester = new Fieldhouse::TestClass;
 is($tester->intScalar, 4, 'Original stored int value');
 is($tester->strScalar, "asdf", 'Original stored string value');
 is($tester->undefScalar, undef, 'No original stored scalar value');
