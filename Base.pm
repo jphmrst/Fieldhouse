@@ -7,7 +7,7 @@ package Fieldhouse::Base;
 our $AUTOLOAD;  # it's a package global
 our $CLASS = "Fieldhouse::Base";
 use strict;
-use Carp qw(cluck);
+use Carp qw(cluck confess);
 use Fieldhouse::Dispatchers::Scalar;
 use Fieldhouse::Dispatchers::ListAccSingular;
 use Fieldhouse::Dispatchers::ListAccPlural;
@@ -44,7 +44,7 @@ sub declare_scalar_variable {
   my $init = shift;
   $self->{__vars}{$field} = $init;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} = $Fieldhouse::Dispatchers::Scalar::INSTANCE;
 }
@@ -57,15 +57,15 @@ sub declare_list_accumulator {
   my $plural = shift;
   $plural = $field . "s" unless defined $plural;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} = $Fieldhouse::Dispatchers::ListAccSingular::INSTANCE;
 
-  die "Field name $plural already in use"
+  confess "Field name $plural already in use"
       if defined $self->{__dispatcher}{$plural};
   $self->{__dispatcher}{$plural} = $Fieldhouse::Dispatchers::ListAccPlural::INSTANCE;
 
-  die "Non-list $init used to initialize $plural\n"
+  confess "Non-list $init used to initialize $plural\n"
       unless ref($init) eq 'ARRAY';
 
   $self->{__listaccs}{$field} = $init;
@@ -83,12 +83,12 @@ sub declare_indexed_list_accumulator {
   my $plural = $namedArgs{plural};
   $plural = $field . "s" unless defined $plural;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} =
       $Fieldhouse::Dispatchers::IndexedListSingular::INSTANCE;
 
-  die "Field name $plural already in use"
+  confess "Field name $plural already in use"
       if defined $self->{__dispatcher}{$plural};
   $self->{__dispatcher}{$plural} =
       $Fieldhouse::Dispatchers::IndexedListPlural::INSTANCE;
@@ -110,7 +110,7 @@ sub declare_hash_accumulator {
   my $init = shift;
   $init = {} unless defined $init;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} =
       $Fieldhouse::Dispatchers::SingleHash::INSTANCE;
@@ -124,7 +124,7 @@ sub declare_dblhash_accumulator {
   my $init = shift;
   $init = {} unless defined $init;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} =
       $Fieldhouse::Dispatchers::DoubleHash::INSTANCE;
@@ -138,7 +138,7 @@ sub declare_triplehash_accumulator {
   my $init = shift;
   $init = {} unless defined $init;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} =
       $Fieldhouse::Dispatchers::TripleHash::INSTANCE;
@@ -152,12 +152,12 @@ sub declare_hash_of_lists_accumulator {
   my $plural = shift;
   $plural = $field . "s" unless defined $plural;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} =
       $Fieldhouse::Dispatchers::SingleHashOfListsSingular::INSTANCE;
 
-  die "Field name $plural already in use"
+  confess "Field name $plural already in use"
       if defined $self->{__dispatcher}{$plural};
   $self->{__dispatcher}{$plural} =
       $Fieldhouse::Dispatchers::SingleHashOfListsPlural::INSTANCE;
@@ -175,12 +175,12 @@ sub declare_dblhash_of_lists_accumulator {
   my $plural = shift;
   $plural = $field . "s" unless defined $plural;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} =
       $Fieldhouse::Dispatchers::DoubleHashOfListsSingular::INSTANCE;
 
-  die "Field name $plural already in use"
+  confess "Field name $plural already in use"
       if defined $self->{__dispatcher}{$plural};
   $self->{__dispatcher}{$plural} =
       $Fieldhouse::Dispatchers::DoubleHashOfListsPlural::INSTANCE;
@@ -195,12 +195,12 @@ sub declare_triplehash_of_lists_accumulator {
   my $plural = shift;
   $plural = $field . "s" unless defined $plural;
 
-  die "Field name $field already in use"
+  confess "Field name $field already in use"
       if defined $self->{__dispatcher}{$field};
   $self->{__dispatcher}{$field} =
       $Fieldhouse::Dispatchers::TripleHashOfListsSingular::INSTANCE;
 
-  die "Field name $plural already in use"
+  confess "Field name $plural already in use"
       if defined $self->{__dispatcher}{$plural};
   $self->{__dispatcher}{$plural} =
       $Fieldhouse::Dispatchers::TripleHashOfListsPlural::INSTANCE;
@@ -221,7 +221,7 @@ sub enter_scope_for {
     push @{$self->{__scopestack}{$field}}, $self->{__vars}{$field};
     $self->{__vars}{$field}=$init if $hasInit;
   } else {
-    die "No scoping for $field";
+    confess "No scoping for $field";
   }
 }
 
@@ -231,13 +231,13 @@ sub exit_scope_for {
   my $init = shift;
 
   if (exists $self->{__vars}{$field}) {
-    die "No scope to exit for $field"
+    confess "No scope to exit for $field"
         unless (exists $self->{__scopestack}{$field}
                 && $#{$self->{__scopestack}{$field}} > -1);
     $self->{__vars}{$field} = pop @{$self->{__scopestack}{$field}};
     delete $self->{__scopestack}{$field} if $#{$self->{__scopestack}{$field}}<0;
   } else {
-    die "No scoping for $field";
+    confess "No scoping for $field";
   }
 }
 
@@ -272,35 +272,74 @@ sub AUTOLOAD {
   my $methodName = $1;
   if (defined $methodName) {
     if ($methodName =~ /^(.+)_ref$/) {
-      return $self->{__dispatcher}{$1}->reference($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (${methodName}_ref) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->reference($self, $1, @_);
     } elsif ($methodName =~ /^(.+)_empty$/) {
-      return $self->{__dispatcher}{$1}->empty($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (${methodName}_empty) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->empty($self, $1, @_);
     } elsif ($methodName =~ /^incr_(.+)$/) {
-      return $self->{__dispatcher}{$1}->incr($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (incr_${methodName}) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->incr($self, $1, @_);
     } elsif ($methodName =~ /^(.+)_keys$/) {
-      return $self->{__dispatcher}{$1}->keyList($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (${methodName}_keys) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->keyList($self, $1, @_);
     } elsif ($methodName =~ /^(.+)_size$/) {
-      return $self->{__dispatcher}{$1}->sizeOf($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (${methodName}_size) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->sizeOf($self, $1, @_);
     } elsif ($methodName =~ /^delete_(.+)_key$/) {
-      return $self->{__dispatcher}{$1}->deleteKey($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (delete_${methodName}_key) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->deleteKey($self, $1, @_);
     } elsif ($methodName =~ /^push_(.+)_keyed$/) {
-      return $self->{__dispatcher}{$1}->pushKeyed($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (push_${methodName}_keyed) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->pushKeyed($self, $1, @_);
     } elsif ($methodName =~ /^unshift_(.+)_keyed$/) {
-      return $self->{__dispatcher}{$1}->unshiftKeyed($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (unshift_${methodName}_keyed) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->unshiftKeyed($self, $1, @_);
     } elsif ($methodName =~ /^push_(.+)$/) {
-      return $self->{__dispatcher}{$1}->push($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (push_${methodName}) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->push($self, $1, @_);
     } elsif ($methodName =~ /^unshift_(.+)$/) {
-      return $self->{__dispatcher}{$1}->unshift($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (unshift_${methodName}) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->unshift($self, $1, @_);
     } elsif ($methodName =~ /^__(.+)$/) {
-      return $self->{__dispatcher}{$1}->doubleUnderscore($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (__${methodName}) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->doubleUnderscore($self, $1, @_);
     } elsif ($methodName =~ /^(.+)_maxIndex$/) {
-      return $self->{__dispatcher}{$1}->maxIndex($self, $1, @_);
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (${methodName}_maxIndex) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->maxIndex($self, $1, @_);
     } else {
-      return $self->{__dispatcher}{$methodName}->bare($self, $methodName, @_);
+      my $dispatcher = $self->{__dispatcher}{$methodName};
+      confess ("No dispatcher for $methodName on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->bare($self, $methodName, @_);
     }
   } else {
     cluck("No such method $methodName");
-    die(ref($self) . qq(: no such method $methodName));
+    confess (ref($self) . qq(: no such method $methodName));
   }
 }
 
