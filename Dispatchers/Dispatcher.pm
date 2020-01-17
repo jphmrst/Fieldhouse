@@ -23,25 +23,39 @@ sub new {
 
 sub name { return "dispatcher superclass"; }
 
+sub no_impl_msg {
+  my $name = shift;
+  my $dispatcher = shift;
+  return ("No implementation for $name on " . ref($dispatcher)
+          . " (" . $dispatcher->name() . ")");
+}
+
 sub bare {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for $name on ".$dispatcher->name();
+  die no_impl_msg($name, $dispatcher);
+}
+
+sub clear {
+  my $dispatcher = shift;
+  my $obj = shift;
+  my $name = shift;
+  die no_impl_msg("clear_$name", $dispatcher);
 }
 
 sub reference {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for ${name}_ref on ".$dispatcher->name();
+  die no_impl_msg("${name}_ref", $dispatcher);
 }
 
 sub empty {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for ${name}_empty on ".$dispatcher->name();
+  die no_impl_msg("${name}_empty", $dispatcher);
 }
 
 sub incr {
@@ -49,70 +63,70 @@ sub incr {
   my $obj = shift;
   my $name = shift;
   my $amount = shift;
-  die "No implementation for incr_${name} on ".$dispatcher->name();
+  die no_impl_msg("incr_${name}", $dispatcher);
 }
 
 sub keyList {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for ${name}_keys on ".$dispatcher->name();
+  die no_impl_msg("${name}_keys", $dispatcher);
 }
 
 sub deleteKey {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for delete_${name}_key on ".$dispatcher->name();
+  die no_impl_msg("delete_${name}_key", $dispatcher);
 }
 
 sub pushKeyed {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for push_${name}_keyed on ".$dispatcher->name();
+  die no_impl_msg("push_${name}_keyed", $dispatcher);
 }
 
 sub unshiftKeyed {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for unshift_${name}_keyed on ".$dispatcher->name();
+  die no_impl_msg("unshift_${name}_keyed", $dispatcher);
 }
 
 sub sizeOf {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for ${name}_size on ".$dispatcher->name();
+  die no_impl_msg("${name}_size", $dispatcher);
 }
 
 sub push {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for push_${name} on ".$dispatcher->name();
+  die no_impl_msg("push_${name}", $dispatcher);
 }
 
 sub unshift {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for unshift_${name} on ".$dispatcher->name();
+  die no_impl_msg("unshift_${name}", $dispatcher);
 }
 
 sub doubleUnderscore {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for __${name} on ".$dispatcher->name();
+  die no_impl_msg("__${name}", $dispatcher);
 }
 
 sub maxIndex {
   my $dispatcher = shift;
   my $obj = shift;
   my $name = shift;
-  die "No implementation for ${name}_maxIndex on ".$dispatcher->name();
+  die no_impl_msg("${name}_maxIndex", $dispatcher);
 }
 
 1;

@@ -44,8 +44,10 @@ sub declare_scalar_variable {
   my $init = shift;
   $self->{__vars}{$field} = $init;
 
-  confess "Field name $field already in use"
-      if defined $self->{__dispatcher}{$field};
+  my $prev = $self->{__dispatcher}{$field};
+  ## print "Declaring $field on $self\n";
+  confess ("Field name $field already in use (as " . ref($prev) . ")")
+      if defined $prev;
   $self->{__dispatcher}{$field} = $Fieldhouse::Dispatchers::Scalar::INSTANCE;
 }
 
@@ -276,6 +278,11 @@ sub AUTOLOAD {
       confess ("No dispatcher for $methodName (${methodName}_ref) on ".ref($self))
           unless defined $dispatcher;
       return $dispatcher->reference($self, $1, @_);
+    } elsif ($methodName =~ /^clear_(.+)$/) {
+      my $dispatcher = $self->{__dispatcher}{$1};
+      confess ("No dispatcher for $methodName (clear_${methodName}) on ".ref($self))
+          unless defined $dispatcher;
+      return $dispatcher->clear($self, $1, @_);
     } elsif ($methodName =~ /^(.+)_empty$/) {
       my $dispatcher = $self->{__dispatcher}{$1};
       confess ("No dispatcher for $methodName (${methodName}_empty) on ".ref($self))

@@ -15,6 +15,13 @@ sub bare {
   return @{$obj->{__listaccs}{$obj->{__listaccslot}{$name}}};
 }
 
+sub clear {
+  my $dispatcher = shift;
+  my $obj = shift;
+  my $name = shift;
+  $obj->{__listaccs}{$obj->{__listaccslot}{$name}} = [];
+}
+
 sub reference {
   my $self = shift;
   my $obj = shift;

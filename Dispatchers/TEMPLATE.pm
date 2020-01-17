@@ -14,6 +14,13 @@ sub bare {
   die "No implementation for $name on ".$self->name();
 }
 
+sub clear {
+  my $dispatcher = shift;
+  my $obj = shift;
+  my $name = shift;
+  die "No implementation for clear_$name on ".$dispatcher->name();
+}
+
 sub reference {
   my $self = shift;
   my $obj = shift;
