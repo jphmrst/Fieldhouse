@@ -45,7 +45,6 @@ sub declare_scalar_variable {
   $self->{__vars}{$field} = $init;
 
   my $prev = $self->{__dispatcher}{$field};
-  ## print "Declaring $field on $self\n";
   confess ("Field name $field already in use (as " . ref($prev) . ")")
       if defined $prev;
   $self->{__dispatcher}{$field} = $Fieldhouse::Dispatchers::Scalar::INSTANCE;
