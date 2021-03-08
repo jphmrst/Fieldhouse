@@ -22,6 +22,7 @@ use Fieldhouse::Dispatchers::DoubleHashOfListsSingular;
 use Fieldhouse::Dispatchers::DoubleHashOfListsPlural;
 use Fieldhouse::Dispatchers::TripleHashOfListsSingular;
 use Fieldhouse::Dispatchers::TripleHashOfListsPlural;
+use Fieldhouse::Dispatchers::HashSet;
 
 # Generic constructor
 sub new {
@@ -48,6 +49,23 @@ sub declare_scalar_variable {
   confess ("Field name $field already in use (as " . ref($prev) . ")")
       if defined $prev;
   $self->{__dispatcher}{$field} = $Fieldhouse::Dispatchers::Scalar::INSTANCE;
+}
+
+sub declare_hash_set {
+  my $self = shift;
+  my $field = shift;
+  my $plural = shift;
+  $plural = $field . "s" unless defined $plural;
+
+  confess "Field name $field already in use"
+      if defined $self->{__dispatcher}{$field};
+  $self->{__dispatcher}{$field} = $Fieldhouse::Dispatchers::HashSet::INSTANCE;
+
+  confess "Field name $plural already in use"
+      if defined $self->{__dispatcher}{$plural};
+  $self->{__dispatcher}{$plural} = $Fieldhouse::Dispatchers::HashSet::INSTANCE;
+
+  $self->{__hashset}{$field} = {};
 }
 
 sub declare_list_accumulator {
@@ -319,12 +337,12 @@ sub AUTOLOAD {
       return $dispatcher->unshiftKeyed($self, $1, @_);
     } elsif ($methodName =~ /^push_(.+)$/) {
       my $dispatcher = $self->{__dispatcher}{$1};
-      confess ("No dispatcher for $methodName (push_${methodName}) on ".ref($self))
+      confess ("No dispatcher for $methodName (push_$1) on ".ref($self))
           unless defined $dispatcher;
       return $dispatcher->push($self, $1, @_);
     } elsif ($methodName =~ /^unshift_(.+)$/) {
       my $dispatcher = $self->{__dispatcher}{$1};
-      confess ("No dispatcher for $methodName (unshift_${methodName}) on ".ref($self))
+      confess ("No dispatcher for $methodName (unshift_$1) on ".ref($self))
           unless defined $dispatcher;
       return $dispatcher->unshift($self, $1, @_);
     } elsif ($methodName =~ /^__(.+)$/) {
@@ -334,7 +352,7 @@ sub AUTOLOAD {
       return $dispatcher->doubleUnderscore($self, $1, @_);
     } elsif ($methodName =~ /^(.+)_maxIndex$/) {
       my $dispatcher = $self->{__dispatcher}{$1};
-      confess ("No dispatcher for $methodName (${methodName}_maxIndex) on ".ref($self))
+      confess ("No dispatcher for $methodName ($1_maxIndex) on ".ref($self))
           unless defined $dispatcher;
       return $dispatcher->maxIndex($self, $1, @_);
     } else {
@@ -458,11 +476,7 @@ first.
 These have no particular structure, just storing some value under a
 method name.  Declare via:
 
-=over 2
-
-=item C<$self->declare_scalar_variable(NAME, INITIAL_VALUE)>
-
-=back
+    $self->declare_scalar_variable(NAME, INITIAL_VALUE)
 
 The second argument is optional. This declaration provides the
 following methods:
@@ -479,15 +493,42 @@ Updates the value stored in the scalar.
 
 =back
 
+=item Hashtable-backed sets
+
+Declare via:
+
+    $self->declare_hash_set(NAME, PLURALNAME)
+
+Only the first argument is required. The second argument should be a
+string reflecting the plural of the name; by default an "s" is
+appended to the name. This declaration provides the following methods:
+
+=over
+
+=item C<push_NAME(VALUE, ..., VALUE)>, C<unshift_NAME(VALUE, ..., VALUE)>
+
+Adds the VALUEs to the set.
+
+=item C<PLURALNAME()>
+
+Returns the set of values as a list.
+
+=item C<clear()>
+
+Empties the set.
+
+=item C<sizeOf()>, C<empty()>
+
+Returns the number of elements in the set, or C<true> if the set is
+empty.
+
+=back
+
 =item Lists
 
 These have multiple values associated with them.  Declare via:
 
-=over 2
-
-=item C<$self->declare_list_accumulator(NAME, INITIAL_VALUE, PLURALNAME)>
-
-=back
+    $self->declare_list_accumulator(NAME, INITIAL_VALUE, PLURALNAME)
 
 Only the first argument is required. The second argument should be a
 list. The third argument should be a string reflecting the plural of
@@ -498,7 +539,7 @@ provides the following methods:
 
 =item C<push_NAME(VALUE, ..., VALUE)>, C<unshift_NAME(VALUE, ..., VALUE)>
 
-Adds the VALUEs to the end (resp. beginnig) of the list.
+Adds the VALUEs to the end (resp. beginning) of the list.
 
 =item C<PLURALNAME()>
 
@@ -511,16 +552,15 @@ Returns the list of values.
 A variation of lists which can also be accessed by a key extracted
 from the list elements.
 
-=over 2
-
-=item C<$self->declare_indexed_list_accumulator(NAME, indexer => INDEXER, init => INITIAL_VALUES, plural => PLURALNAME)>
+    $self->declare_indexed_list_accumulator(NAME,
+                                            indexer => INDEXER,
+                                            init => INITIAL_VALUES,
+                                            plural => PLURALNAME)
 
 The C<INDEXER> is a function which takes a list element and returns
 the key by which it should be accessed.  This function is optional,
 but if it is omitted then the C<PUSH_> and C<UNSHIFT_> list functions
 are not available.
-
-=back
 
 In addition to the list methods, the following methods are available:
 
@@ -541,11 +581,7 @@ is indexed by C<KEY>.
 
 These provide a simple association with scalars.  Declare via:
 
-=over 2
-
-=item C<$self->declare_hash_accumulator(NAME, INITAL_HASH)>
-
-=back
+    $self->declare_hash_accumulator(NAME, INITAL_HASH)
 
 Only the first argument is required. This declaration provides the
 following methods:
@@ -575,11 +611,7 @@ Returns the hashtable implementing these methods. Be careful.
 These provide a simple association with pairs of scalars.  Declare
 via:
 
-=over 2
-
-=item C<$self->declare_dblhash_accumulator(NAME, INITAL_DBL_HASH)>
-
-=back
+    $self->declare_dblhash_accumulator(NAME, INITAL_DBL_HASH)
 
 Only the first argument is required. This declaration provides the
 following methods:
@@ -617,15 +649,11 @@ Continuing the pattern of n-argument hashtables, now with three.
 
 These associate each key with multiple values.  Declare via:
 
-=over 2
-
-=item C<$self->declare_hash_of_lists_accumulator(NAME, INITIAL_VALUE, PLURALNAME)>
-
-=back
+    $self->declare_hash_of_lists_accumulator(NAME, INITIAL_VALUE, PLURALNAME)
 
 Only the first argument is required. The second argument should be a
-hashtable. The third argument should be a string reflecting the plural
-of the name; by default an "s" is appended to the name. This
+hashtable.  The third argument should be a string reflecting the
+plural of the name; by default an "s" is appended to the name. This
 declaration provides the following methods:
 
 This declaration provides the following methods:
