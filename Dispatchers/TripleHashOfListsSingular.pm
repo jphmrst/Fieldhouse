@@ -58,7 +58,7 @@ sub empty {
 
   ## First check the odd case that the top-level hash is empty.
   ## Weird, but not a problem we solve here.
-  my $theHash = $obj->{__dblhashoflists}{$name};
+  my $theHash = $obj->{__triplehashoflists}{$name};
   return 1  unless defined $theHash;
 
   ## Otherwise see how many keys are defined, and check that level of

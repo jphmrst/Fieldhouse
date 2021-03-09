@@ -27,8 +27,8 @@ sub bare {
   die "$name requires three key arguments"
       unless defined $key1 && defined $key2 && defined $key3;
 
-  my $sng = $obj->{__dblhashoflistsslot}{$name};
-  my $ptr = $obj->{__dblhashoflists}{$sng}{$key1}{$key2}{$key3};
+  my $sng = $obj->{__triplehashoflistsslot}{$name};
+  my $ptr = $obj->{__triplehashoflists}{$sng}{$key1}{$key2}{$key3};
   return defined $ptr ? @$ptr : ();
 }
 
