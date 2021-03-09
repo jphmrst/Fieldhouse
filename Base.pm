@@ -39,7 +39,7 @@ sub initialize {
   # $self->SUPER::initialize(@_);
 }
 
-sub declare_scalar_variable {
+sub declare_scalar {
   my $self = shift;
   my $field = shift;
   my $init = shift;
@@ -68,7 +68,7 @@ sub declare_hash_set {
   $self->{__hashset}{$field} = {};
 }
 
-sub declare_list_accumulator {
+sub declare_list {
   my $self = shift;
   my $field = shift;
   my $init = shift;
@@ -91,7 +91,7 @@ sub declare_list_accumulator {
   $self->{__listaccslot}{$plural} = $field;
 }
 
-sub declare_indexed_list_accumulator {
+sub declare_indexed_list {
   my $self = shift;
   my $field = shift;
 
@@ -123,7 +123,7 @@ sub declare_indexed_list_accumulator {
   $self->{__idxlistindex}{$field} = $index;
 }
 
-sub declare_hash_accumulator {
+sub declare_hash {
   my $self = shift;
   my $field = shift;
   my $init = shift;
@@ -137,7 +137,7 @@ sub declare_hash_accumulator {
   $self->{__snghash}{$field} = $init;
 }
 
-sub declare_dblhash_accumulator {
+sub declare_dblhash {
   my $self = shift;
   my $field = shift;
   my $init = shift;
@@ -151,7 +151,7 @@ sub declare_dblhash_accumulator {
   $self->{__dblhash}{$field} = $init;
 }
 
-sub declare_triplehash_accumulator {
+sub declare_triplehash {
   my $self = shift;
   my $field = shift;
   my $init = shift;
@@ -165,7 +165,7 @@ sub declare_triplehash_accumulator {
   $self->{__triplehash}{$field} = $init;
 }
 
-sub declare_hash_of_lists_accumulator {
+sub declare_hash_of_lists {
   my $self = shift;
   my $field = shift;
   my $plural = shift;
@@ -188,7 +188,30 @@ sub declare_hash_of_lists_accumulator {
   $self->{__hashoflistsslot}{$plural} = $field;
 }
 
-sub declare_dblhash_of_lists_accumulator {
+sub declare_hash_of_hashsets {
+  my $self = shift;
+  my $field = shift;
+  my $plural = shift;
+  $plural = $field . "s" unless defined $plural;
+
+  confess "Field name $field already in use"
+      if defined $self->{__dispatcher}{$field};
+  $self->{__dispatcher}{$field} =
+      $Fieldhouse::Dispatchers::SingleHashOfListsSingular::INSTANCE;
+
+  confess "Field name $plural already in use"
+      if defined $self->{__dispatcher}{$plural};
+  $self->{__dispatcher}{$plural} =
+      $Fieldhouse::Dispatchers::SingleHashOfListsPlural::INSTANCE;
+
+  # printf("++ $field -- %s\n",  dbgStr($self->{__dispatcher}{$field}));
+  # printf("++ $plural -- %s\n", dbgStr($self->{__dispatcher}{$plural}));
+
+  $self->{__hashoflists}{$field} = {};
+  $self->{__hashoflistsslot}{$plural} = $field;
+}
+
+sub declare_dblhash_of_lists {
   my $self = shift;
   my $field = shift;
   my $plural = shift;
@@ -208,7 +231,7 @@ sub declare_dblhash_of_lists_accumulator {
   $self->{__dblhashoflistsslot}{$plural} = $field;
 }
 
-sub declare_triplehash_of_lists_accumulator {
+sub declare_triplehash_of_lists {
   my $self = shift;
   my $field = shift;
   my $plural = shift;
@@ -416,10 +439,10 @@ of accessor and mutator methods for internal fields.
     $self->SUPER::initialize(@_);
 
     ## Declare local methods
-    $self->declare_scalar_variable('simplevalue');
-    $self->declare_list_accumulator('listval');
-    $self->declare_hash_accumulator('hashval');
-    $self->declare_hash_of_lists_accumulator('listhash', undef,
+    $self->declare_scalar('simplevalue');
+    $self->declare_list('listval');
+    $self->declare_hash('hashval');
+    $self->declare_hash_of_lists('listhash', undef,
                                              'listhashes');
   }
 
@@ -476,7 +499,7 @@ first.
 These have no particular structure, just storing some value under a
 method name.  Declare via:
 
-    $self->declare_scalar_variable(NAME, INITIAL_VALUE)
+    $self->declare_scalar(NAME, INITIAL_VALUE)
 
 The second argument is optional. This declaration provides the
 following methods:
@@ -528,7 +551,7 @@ empty.
 
 These have multiple values associated with them.  Declare via:
 
-    $self->declare_list_accumulator(NAME, INITIAL_VALUE, PLURALNAME)
+    $self->declare_list(NAME, INITIAL_VALUE, PLURALNAME)
 
 Only the first argument is required. The second argument should be a
 list. The third argument should be a string reflecting the plural of
@@ -552,7 +575,7 @@ Returns the list of values.
 A variation of lists which can also be accessed by a key extracted
 from the list elements.
 
-    $self->declare_indexed_list_accumulator(NAME,
+    $self->declare_indexed_list(NAME,
                                             indexer => INDEXER,
                                             init => INITIAL_VALUES,
                                             plural => PLURALNAME)
@@ -581,7 +604,7 @@ is indexed by C<KEY>.
 
 These provide a simple association with scalars.  Declare via:
 
-    $self->declare_hash_accumulator(NAME, INITAL_HASH)
+    $self->declare_hash(NAME, INITAL_HASH)
 
 Only the first argument is required. This declaration provides the
 following methods:
@@ -611,7 +634,7 @@ Returns the hashtable implementing these methods. Be careful.
 These provide a simple association with pairs of scalars.  Declare
 via:
 
-    $self->declare_dblhash_accumulator(NAME, INITAL_DBL_HASH)
+    $self->declare_dblhash(NAME, INITAL_DBL_HASH)
 
 Only the first argument is required. This declaration provides the
 following methods:
@@ -649,7 +672,7 @@ Continuing the pattern of n-argument hashtables, now with three.
 
 These associate each key with multiple values.  Declare via:
 
-    $self->declare_hash_of_lists_accumulator(NAME, INITIAL_VALUE, PLURALNAME)
+    $self->declare_hash_of_lists(NAME, INITIAL_VALUE, PLURALNAME)
 
 Only the first argument is required. The second argument should be a
 hashtable.  The third argument should be a string reflecting the
