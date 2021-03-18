@@ -10,6 +10,12 @@ use Carp;
 our $AUTOLOAD;  # it's a package global
 our $CLASS = "Fieldhouse::Dispatchers::XHashOfLists";
 
+sub isHash4EmptyLists {
+  my $self = shift;
+  my $hash = shift;
+  return $self->hash4ListsSize($hash) == 0;
+}
+
 sub isHash3EmptyLists {
   my $self = shift;
   my $hash = shift;
@@ -26,6 +32,18 @@ sub isHash1EmptyLists {
   my $self = shift;
   my $hash = shift;
   return $self->hash1ListsSize($hash) == 0;
+}
+
+sub hash4ListsSize {
+  my $self = shift;
+  my $hash = shift;
+  my $total = 0;
+  if (defined $hash) {
+    foreach my $key (keys %$hash) {
+      $total += $self->hash3ListsSize($hash->{$key});
+    }
+  }
+  return $total;
 }
 
 sub hash3ListsSize {

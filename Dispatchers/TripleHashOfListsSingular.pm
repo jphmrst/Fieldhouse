@@ -5,6 +5,7 @@
 
 package Fieldhouse::Dispatchers::TripleHashOfListsSingular;
 use Fieldhouse::Dispatchers::XHashOfLists;
+use Fieldhouse::Dispatchers::TripleHash;
 use strict;
 use Carp;
 

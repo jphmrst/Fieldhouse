@@ -22,6 +22,8 @@ use Fieldhouse::Dispatchers::DoubleHashOfListsSingular;
 use Fieldhouse::Dispatchers::DoubleHashOfListsPlural;
 use Fieldhouse::Dispatchers::TripleHashOfListsSingular;
 use Fieldhouse::Dispatchers::TripleHashOfListsPlural;
+use Fieldhouse::Dispatchers::QuadHashOfListsSingular;
+use Fieldhouse::Dispatchers::QuadHashOfListsPlural;
 use Fieldhouse::Dispatchers::HashSet;
 
 # Generic constructor
@@ -249,6 +251,26 @@ sub declare_triplehash_of_lists {
 
   $self->{__triplehashoflists}{$field} = {};
   $self->{__triplehashoflistsslot}{$plural} = $field;
+}
+
+sub declare_quadhash_of_lists {
+  my $self = shift;
+  my $field = shift;
+  my $plural = shift;
+  $plural = $field . "s" unless defined $plural;
+
+  confess "Field name $field already in use"
+      if defined $self->{__dispatcher}{$field};
+  $self->{__dispatcher}{$field} =
+      $Fieldhouse::Dispatchers::QuadHashOfListsSingular::INSTANCE;
+
+  confess "Field name $plural already in use"
+      if defined $self->{__dispatcher}{$plural};
+  $self->{__dispatcher}{$plural} =
+      $Fieldhouse::Dispatchers::QuadHashOfListsPlural::INSTANCE;
+
+  $self->{__quadhashoflists}{$field} = {};
+  $self->{__quadhashoflistsslot}{$plural} = $field;
 }
 
 #################################################################
@@ -700,5 +722,13 @@ Returns the list of values associated with the key
 Returns the hashtable implementing these methods. Be careful.
 
 =back
+
+=item Deeper hashtables of lists
+
+Same pattern as with n-argument hashtables of scalars,
+
+    $self->declare_dblhash_of_lists(NAME, INITIAL_VALUE, PLURALNAME)
+    $self->declare_triplehash_of_lists(NAME, INITIAL_VALUE, PLURALNAME)
+    $self->declare_quadhash_of_lists(NAME, INITIAL_VALUE, PLURALNAME)
 
 =back

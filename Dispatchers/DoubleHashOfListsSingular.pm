@@ -5,6 +5,7 @@
 
 package Fieldhouse::Dispatchers::DoubleHashOfListsSingular;
 use Fieldhouse::Base;
+use Fieldhouse::Dispatchers::DoubleHash;
 use strict;
 use Carp;
 

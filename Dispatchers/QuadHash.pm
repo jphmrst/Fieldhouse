@@ -1,15 +1,15 @@
-# Fieldhouse::Dispatchers::TripleHash
+# Fieldhouse::Dispatchers::QuadHash
 #
 # Dispatcher objects for base class core functionality.
 ##
 
-package Fieldhouse::Dispatchers::TripleHash;
+package Fieldhouse::Dispatchers::QuadHash;
 use Fieldhouse::Dispatchers::Dispatcher;
 our $AUTOLOAD;  # it's a package global
-our $CLASS = "Fieldhouse::Dispatchers::TripleHash";
+our $CLASS = "Fieldhouse::Dispatchers::QuadHash";
 our @ISA = ("Fieldhouse::Dispatchers::Dispatcher");
 use strict;
-our $INSTANCE = Fieldhouse::Dispatchers::TripleHash->new();
+our $INSTANCE = Fieldhouse::Dispatchers::QuadHash->new();
 
 sub name { return "Three-key hashtable"; }
 
@@ -19,7 +19,7 @@ sub baseHashtable {
   shift;
   my $obj = shift;
   my $name = shift;
-  return $obj->{__triplehash}{$name};
+  return $obj->{__quadhash}{$name};
 }
 
 sub bare {
@@ -27,19 +27,22 @@ sub bare {
   my $obj = shift;
   my $name = shift;
 
-  die "$name requires at least three key arguments"  if $#_ < 2;
+  die "$name requires at least four key arguments"  if $#_ < 3;
   my $key1 = shift;
   my $key2 = shift;
   my $key3 = shift;
+  my $key4 = shift;
   my $val = shift;
 
-  ## print "** triplehash lookup hash $name keys $key1,$key2,$key3 val $val\n";
+  ## print "** quadhash lookup hash $name keys $key1,$key2,$key3,$key4 val $val\n";
   if (defined $val) {
-    $obj->{__triplehash}{$name}{$key1}{$key2}{$key3} = $val;
+    $obj->{__quadhash}{$name}{$key1}{$key2}{$key3}{$key4} = $val;
     return $val;
   } else {
-    return undef unless exists $obj->{__triplehash}{$name}{$key1};
-    return $obj->{__triplehash}{$name}{$key1}{$key2}{$key3};
+    return undef unless exists $obj->{__quadhash}{$name}{$key1};
+    return undef unless exists $obj->{__quadhash}{$name}{$key1}{$key2};
+    return undef unless exists $obj->{__quadhash}{$name}{$key1}{$key2}{$key3};
+    return $obj->{__quadhash}{$name}{$key1}{$key2}{$key3}{$key4};
   }
 }
 
@@ -55,9 +58,10 @@ sub empty {
   my @ks = keys %$theHash;
   return 1  if $#ks < 0;
 
-  ## Now we need to know how many keys we are given (1 or 2).
+  ## Now we need to know how many keys we are given (1, 2 or 3).
   my $key1 = shift;
   my $key2 = shift;
+  my $key3 = shift;
 
   ## If we are given no keys, we check the whole thing.
   ##
@@ -65,30 +69,48 @@ sub empty {
     foreach my $k1 (@ks) {
       my $subhash = $theHash->{$k1};
       foreach my $k2 (keys %$subhash) {
-        my @subkeys = keys %{$subhash->{$k2}};
+        my $subsubhash = $subhash->{$k2};
+        foreach my $k3 (keys %$subsubhash) {
+          my @subkeys = keys %{$subsubhash->{$k3}};
+          return 0 if $#subkeys > -1;
+        }
+      }
+    }
+    return 1;
+  }
+
+  ## If we are given one key but not the others, then we check that
+  ## key's subhash only.
+  ##
+  elsif (!(defined $key2)) {
+    my $subhash = $theHash->{$key1};
+    foreach my $k2 (keys %$subhash) {
+      my $subsubhash = $subhash->{$key2};
+      foreach my $k3 (keys %$subsubhash) {
+        my @subkeys = keys %{$subsubhash->{$k3}};
         return 0 if $#subkeys > -1;
       }
     }
     return 1;
   }
 
-  ## If we are given one key but not the other, then we check that
-  ## key's subhash only.
+  ## If we are given two keys but not the other, then we check
+  ## that key's subhash only.
   ##
-  elsif (!(defined $key2)) {
-    my $subhash = $theHash->{$key1};
-    foreach my $k2 (keys %$subhash) {
-      my @subkeys = keys %{$subhash->{$k2}};
+  elsif (!(defined $key3)) {
+    my $subhash = $theHash->{$key1}{$key2};
+    foreach my $k3 (keys %$subhash) {
+      my @subkeys = keys %{$subhash->{$k3}};
       return 0 if $#subkeys > -1;
     }
     return 1;
   }
 
-  ## Else if we have two keys, then we check just whether those keys
-  ## have any subkeys.
+  ## Else if we have all three keys, then we check just whether that
+  ## one list is empty.
   ##
   else {
-    my @subks = keys %{$theHash->{$key1}{$key2}};
+    my @subks = keys %{$theHash->{$key1}{$key2}{$key3}};
     return $#subks < 0;
   }
 }
@@ -99,7 +121,23 @@ sub keyList {
   my $name = shift;
   my $basehash = $dispatcher->baseHashtable($obj, $name);
 
-  if ($#_ > 0) {
+  if ($#_ > 1) {
+    my $key1 = shift;
+    my $key2 = shift;
+    my $key3 = shift;
+    if (exists $basehash->{$key1}
+        && ref($basehash->{$key1}) eq 'HASH'
+        && exists $basehash->{$key1}{$key2}
+        && ref($basehash->{$key1}{$key2}) eq 'HASH'
+        && exists $basehash->{$key1}{$key2}{$key3}
+        && ref($basehash->{$key1}{$key2}{$key3}) eq 'HASH') {
+      return keys %{$basehash->{$key1}{$key2}{$key3}};
+    } else {
+      return ();
+    }
+  }
+
+  if ($#_ == 1) {
     my $key1 = shift;
     my $key2 = shift;
     if (exists $basehash->{$key1}
@@ -133,8 +171,17 @@ sub deleteKey {
   my $name = shift;
   my $basehash = $dispatcher->baseHashtable($obj, $name);
 
+  ## There are four keys; delete the fourth one
+  if ($#_ > 2) {
+    my $key1 = shift;
+    my $key2 = shift;
+    my $key3 = shift;
+    my $key4 = shift;
+    delete $basehash->{$key1}{$key2}{$key3}{$key4};
+  }
+
   ## There are three keys; delete the third one
-  if ($#_ > 1) {
+  if ($#_ == 2) {
     my $key1 = shift;
     my $key2 = shift;
     my $key3 = shift;
@@ -170,6 +217,24 @@ sub sizeOf {
   my @ks = keys %$theHash;
 
   my $total=0;
+
+  ## There are four keys; count its list only.
+  if ($#_ > 2) {
+    my $key1 = shift;
+    my $key2 = shift;
+    my $key3 = shift;
+    my $key4 = shift;
+    $total += (1 + $#{$theHash->{$key1}{$key2}{$key3}{$key4}});
+  }
+
+  ## There are three keys; count its contained keys only.
+  if ($#_ == 2) {
+    my $key1 = shift;
+    my $key2 = shift;
+    my $key3 = shift;
+    my @countKeys = keys %{$theHash->{$key1}{$key2}{$key3}};
+    $total += (1 + $#countKeys);
+  }
 
   ## There are two keys; count the inner-inner hash only
   if ($#_ == 1) {
