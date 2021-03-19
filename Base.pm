@@ -16,6 +16,7 @@ use Fieldhouse::Dispatchers::IndexedListPlural;
 use Fieldhouse::Dispatchers::SingleHash;
 use Fieldhouse::Dispatchers::DoubleHash;
 use Fieldhouse::Dispatchers::TripleHash;
+use Fieldhouse::Dispatchers::QuadHash;
 use Fieldhouse::Dispatchers::SingleHashOfListsSingular;
 use Fieldhouse::Dispatchers::SingleHashOfListsPlural;
 use Fieldhouse::Dispatchers::DoubleHashOfListsSingular;
@@ -165,6 +166,20 @@ sub declare_triplehash {
       $Fieldhouse::Dispatchers::TripleHash::INSTANCE;
 
   $self->{__triplehash}{$field} = $init;
+}
+
+sub declare_quadhash {
+  my $self = shift;
+  my $field = shift;
+  my $init = shift;
+  $init = {} unless defined $init;
+
+  confess "Field name $field already in use"
+      if defined $self->{__dispatcher}{$field};
+  $self->{__dispatcher}{$field} =
+      $Fieldhouse::Dispatchers::QuadHash::INSTANCE;
+
+  $self->{__quadhash}{$field} = $init;
 }
 
 sub declare_hash_of_lists {
